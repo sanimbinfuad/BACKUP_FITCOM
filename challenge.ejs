@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitCom</title>
+
+    <link rel="stylesheet" href="/style.css">
+
+    <!-- SAME FONT EVERYWHERE -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dash-body">
+<div class="dash-wrapper">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            ⚡ <span class="logo-text">FITCOM</span>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="/dashboard" class="nav-item <%= active === 'dashboard' ? 'active' : '' %>">
+                🏠 Home
+            </a>
+
+            <a href="/friends" class="nav-item <%= active === 'friends' ? 'active' : '' %>">
+                👥 Friends
+            </a>
+
+            <a href="/activity_log" class="nav-item <%= active === 'activity' ? 'active' : '' %>">
+                📋 Activity Log
+            </a>
+
+            <a href="/goals" class="nav-item <%= active === 'goals' ? 'active' : '' %>">
+                🎯 Goals
+            </a>
+
+            <a href="/challenge" class="nav-item <%= active === 'challenge' ? 'active' : '' %>">
+                ⚡ Daily Challenge
+            </a>
+
+            <a href="/search" class="nav-item <%= active === 'search' ? 'active' : '' %>">
+                🔍 Search
+            </a>
+
+        </nav>
+
+        <a href="/logout" class="sidebar-logout">🚪 Logout</a>
+    </aside>
+
+    <main class="dash-main">
+
+        <!-- HEADER -->
+        <div class="dash-header">
+            <div class="dash-welcome">⚡ Daily Challenge</div>
+            <div class="dash-subtext">Complete today's challenge to build your streak</div>
+        </div>
+
+        <!-- NEW BADGE NOTIFICATION -->
+        <% if (newBadge) { %>
+            <%
+                const badgeEmoji = newBadge === 'gold' ? '🥇' : newBadge === 'silver' ? '🥈' : '🥉';
+                const badgeMsg = newBadge === 'gold' ? '25 day streak' : newBadge === 'silver' ? '10 day streak' : '5 day streak';
+            %>
+            <div style="background:rgba(200,241,53,0.08); border:1px solid rgba(200,241,53,0.3); border-radius:12px; padding:16px 20px; margin-bottom:20px; display:flex; align-items:center; gap:14px;">
+                <div style="font-size:2.5rem;"><%= badgeEmoji %></div>
+                <div>
+                    <div style="font-weight:700; color:#c8f135; font-size:1rem;">
+                        You earned a <%= newBadge.toUpperCase() %> Badge!
+                    </div>
+                    <div style="color:#5a5f75; font-size:0.875rem;">
+                        Congratulations on your <%= badgeMsg %>!
+                    </div>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- STATS -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value"><%= streak %></div>
+                <div class="stat-label">Day Streak</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><%= history.length %></div>
+                <div class="stat-label">This Week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><%= badges.length %></div>
+                <div class="stat-label">Badges Earned</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">
+                    <% if (streak >= 25) { %>🥇
+                    <% } else if (streak >= 10) { %>🥈
+                    <% } else if (streak >= 5) { %>🥉
+                    <% } else { %>—<% } %>
+                </div>
+                <div class="stat-label">Current Badge</div>
+            </div>
+        </div>
+
+        <div class="dash-grid">
+            <div class="dash-col">
+
+                <!-- TODAY'S CHALLENGE CARD -->
+                <div class="dash-card" style="border-color: <%= alreadyCompleted ? 'rgba(0,230,118,0.3)' : 'rgba(200,241,53,0.3)' %>;">
+                    <div class="card-title">📅 Today's Challenge</div>
+
+                    <div style="text-align:center; padding:24px 0;">
+                        <div style="font-size:3rem; margin-bottom:12px;">
+                            <!-- AFTER — shows emoji AND name together -->
+                        <%
+                            const icons = {
+                                'Running': '🏃',
+                                'Cycling': '🚴',
+                                'Swimming': '🏊',
+                                'Weight Training': '🏋️',
+                                'Yoga': '🧘',
+                                'HIIT': '⚡',
+                                'Walking': '🚶',
+                                'Jump Rope': '🪢'
+                            };
+                        %>
+                        <div style="font-size:2rem; margin-bottom:8px;">
+                            <%= icons[challenge.name] || '💪' %>
+                        </div>
+                        <div style="font-family:'Bebas Neue',sans-serif; font-size:2.8rem; color:#c8f135; letter-spacing:2px;">
+                            <%= challenge.name %>
+                        </div>
+                        
+                    </div>
+
+                    <!-- STREAK PROGRESS TO NEXT BADGE -->
+                    <%
+                        let nextBadge, nextTarget, progressPct;
+                        if (streak < 5) {
+                            nextBadge = "Bronze"; nextTarget = 5;
+                            progressPct = Math.round((streak / 5) * 100);
+                        } else if (streak < 10) {
+                            nextBadge = "Silver"; nextTarget = 10;
+                            progressPct = Math.round(((streak - 5) / 5) * 100);
+                        } else if (streak < 25) {
+                            nextBadge = "Gold"; nextTarget = 25;
+                            progressPct = Math.round(((streak - 10) / 15) * 100);
+                        } else {
+                            nextBadge = null; nextTarget = null;
+                            progressPct = 100;
+                        }
+                    %>
+
+                    <% if (nextBadge) { %>
+                    <div style="margin-bottom:20px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.78rem; color:#5a5f75; margin-bottom:6px;">
+                            <span>Progress to <%= nextBadge %> Badge</span>
+                            <span><%= streak %>/<%= nextTarget %> days</span>
+                        </div>
+                        <div style="background:#0f1117; border-radius:20px; height:8px; overflow:hidden;">
+                            <div style="background:#c8f135; height:100%; width:<%= progressPct %>%; border-radius:20px; transition:width 0.3s;"></div>
+                        </div>
+                    </div>
+                    <% } %>
+
+                    <!-- COMPLETE BUTTON -->
+                    <% if (alreadyCompleted) { %>
+                        <div style="background:rgba(0,230,118,0.08); border:1px solid rgba(0,230,118,0.25); border-radius:10px; padding:14px; text-align:center; color:#00e676; font-weight:600;">
+                            ✅ Challenge Completed Today!
+                        </div>
+                    <% } else { %>
+                        <form action="/challenge/complete" method="POST">
+                            <button type="submit" class="btn-main" style="width:100%; font-size:1rem; padding:14px;">
+                                ⚡ Mark as Complete
+                            </button>
+                        </form>
+                    <% } %>
+                </div>
+
+                <!-- BADGES CARD -->
+                <div class="dash-card">
+                    <div class="card-title">🏅 My Badges</div>
+
+                    <% if (badges.length === 0) { %>
+                        <div style="text-align:center; padding:20px;">
+                            <div style="font-size:2rem; margin-bottom:8px;">🔒</div>
+                            <div style="color:#5a5f75; font-size:0.875rem;">Complete 5 challenges to earn your first badge</div>
+                            <div style="margin-top:16px; display:flex; justify-content:center; gap:16px;">
+                                <div style="text-align:center; opacity:0.3;">
+                                    <div style="font-size:2rem;">🥉</div>
+                                    <div style="font-size:0.72rem; color:#5a5f75; margin-top:4px;">5 Days</div>
+                                </div>
+                                <div style="text-align:center; opacity:0.3;">
+                                    <div style="font-size:2rem;">🥈</div>
+                                    <div style="font-size:0.72rem; color:#5a5f75; margin-top:4px;">10 Days</div>
+                                </div>
+                                <div style="text-align:center; opacity:0.3;">
+                                    <div style="font-size:2rem;">🥇</div>
+                                    <div style="font-size:0.72rem; color:#5a5f75; margin-top:4px;">25 Days</div>
+                                </div>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <div style="display:flex; flex-wrap:wrap; gap:12px;">
+                            <!-- CORRECT — uses badge.name and badge.date to match earns table -->
+                            <% badges.forEach(badge => { %>
+                                <%
+                                    const bEmoji = badge.name === 'Gold' ? '🥇' : badge.name === 'Silver' ? '🥈' : '🥉';
+                                    const bColor = badge.name === 'Gold' ? '#c8f135' : badge.name === 'Silver' ? '#9ca3b0' : '#cd7f32';
+                                %>
+                                <div style="background:#0f1117; border:1px solid #2a2d3a; border-radius:10px; padding:14px 18px; text-align:center; min-width:90px;">
+                                    <div style="font-size:2rem;"><%= bEmoji %></div>
+                                    <div style="font-size:0.78rem; font-weight:700; color:<%= bColor %>; margin-top:6px; text-transform:uppercase;">
+                                        <%= badge.name %>
+                                    </div>
+                                    <div style="font-size:0.7rem; color:#5a5f75; margin-top:2px;">
+                                        <%= new Date(badge.date).toLocaleDateString() %>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } %>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="dash-col">
+
+                
+
+                <!-- HOW BADGES WORK -->
+                <div class="dash-card">
+                    <div class="card-title">🏅 Badge Requirements</div>
+                    <div style="display:flex; flex-direction:column; gap:12px;">
+
+                        <div style="display:flex; align-items:center; gap:14px; padding:12px; background:#0f1117; border-radius:10px; border:1px solid <%= streak >= 5 ? 'rgba(205,127,50,0.4)' : '#2a2d3a' %>;">
+                            <div style="font-size:1.8rem;">🥉</div>
+                            <div>
+                                <div style="font-weight:600; color:#cd7f32; font-size:0.9rem;">Bronze Badge</div>
+                                <div style="font-size:0.78rem; color:#5a5f75;">Complete 5 daily challenges in a row</div>
+                            </div>
+                            <% if (streak >= 5) { %>
+                                <span class="badge badge-active" style="margin-left:auto;">Earned</span>
+                            <% } %>
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap:14px; padding:12px; background:#0f1117; border-radius:10px; border:1px solid <%= streak >= 10 ? 'rgba(156,163,176,0.4)' : '#2a2d3a' %>;">
+                            <div style="font-size:1.8rem;">🥈</div>
+                            <div>
+                                <div style="font-weight:600; color:#9ca3b0; font-size:0.9rem;">Silver Badge</div>
+                                <div style="font-size:0.78rem; color:#5a5f75;">Complete 10 daily challenges in a row</div>
+                            </div>
+                            <% if (streak >= 10) { %>
+                                <span class="badge badge-active" style="margin-left:auto;">Earned</span>
+                            <% } %>
+                        </div>
+
+                        <div style="display:flex; align-items:center; gap:14px; padding:12px; background:#0f1117; border-radius:10px; border:1px solid <%= streak >= 25 ? 'rgba(200,241,53,0.4)' : '#2a2d3a' %>;">
+                            <div style="font-size:1.8rem;">🥇</div>
+                            <div>
+                                <div style="font-weight:600; color:#c8f135; font-size:0.9rem;">Gold Badge</div>
+                                <div style="font-size:0.78rem; color:#5a5f75;">Complete 25 daily challenges in a row</div>
+                            </div>
+                            <% if (streak >= 25) { %>
+                                <span class="badge badge-active" style="margin-left:auto;">Earned</span>
+                            <% } %>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

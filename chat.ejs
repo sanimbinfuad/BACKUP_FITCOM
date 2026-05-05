@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <title>Chat with <%= friend.name %> — FitCom</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body class="dash-body">
+<div class="dash-wrapper">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span>⚡</span>
+            <span class="logo-text">FITCOM</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-item">🏠 Home</a>
+            <a href="/friends" class="nav-item active">👥 Friends</a>
+            <a href="/activity_log" class="nav-item">📋 Activity Log</a>
+            <a href="/profile" class="nav-item">👤 Profile</a>
+            <a href="/search" class="nav-item">🔍 Search</a>
+            <a href="/goals" class="nav-item">🎯 Goals</a>
+            <a href="/challenge" class="nav-item">⚡ Daily Challenge</a>
+        </nav>
+        <a href="/logout" class="sidebar-logout">🚪 Logout</a>
+    </aside>
+
+    <main class="dash-main">
+
+        <!-- Header -->
+        <div class="dash-header" style="display:flex; align-items:center; gap:14px;">
+            <a href="/friends" style="color:#5a5f75; text-decoration:none; font-size:1.2rem;">←</a>
+            <div class="post-avatar" style="width:40px; height:40px; font-size:1rem; flex-shrink:0;">
+                <%= friend.name[0].toUpperCase() %>
+            </div>
+            <div>
+                <div class="dash-welcome" style="font-size:1.2rem;"><%= friend.name %></div>
+                <div class="dash-subtext">Your friend</div>
+            </div>
+        </div>
+
+        <!-- Chat window -->
+        <div class="chat-window" id="chatWindow">
+            <% if (messages.length === 0) { %>
+                <div class="chat-empty">No messages yet. Say hello! 👋</div>
+            <% } %>
+
+            <% messages.forEach(m => { %>
+                <% const isMine = m.sender === user.userID; %>
+                <div class="chat-bubble-wrap <%= isMine ? 'mine' : 'theirs' %>">
+                    <div class="chat-bubble <%= isMine ? 'bubble-mine' : 'bubble-theirs' %>">
+                        <%= m.content %>
+                    </div>
+                    <div class="chat-time">
+                        <%= new Date(m.time).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) %>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+
+        <!-- Emoji bar -->
+        <div class="emoji-bar">
+            <% ["😄","😂","❤️","🔥","💪","👍","🎉","😎","🥲","😤"].forEach(e => { %>
+                <button class="emoji-btn" onclick="addEmoji('<%= e %>')"><%= e %></button>
+            <% }) %>
+        </div>
+
+        <!-- Message input -->
+        <form action="/chat/<%= friend.userID %>" method="POST" class="chat-form">
+            <input
+                type="text"
+                name="content"
+                id="chatInput"
+                placeholder="Type a message..."
+                autocomplete="off"
+                class="chat-input"
+            >
+            <button type="submit" class="btn-accent" style="padding: 10px 22px;">Send</button>
+        </form>
+
+    </main>
+</div>
+
+<script>
+    // Auto-scroll to bottom on load
+    const chatWindow = document.getElementById("chatWindow");
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+
+    // Insert emoji into input
+    function addEmoji(emoji) {
+        const input = document.getElementById("chatInput");
+        input.value += emoji;
+        input.focus();
+    }
+</script>
+
+</body>
+</html>

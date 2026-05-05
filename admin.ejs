@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="dash-body">
+
+<div class="dash-wrapper">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span class="logo-text">ADMIN</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/admin" class="nav-item active">🛡️ Dashboard</a>
+            <a href="#users" class="nav-item">👥 Users</a>
+            <a href="#posts" class="nav-item">📝 Posts</a>
+            <a href="#reports" class="nav-item">🚨 Reports</a>
+        </nav>
+
+        <a href="/logout" class="sidebar-logout">⬅ Logout</a>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="dash-main">
+
+        <div class="dash-header">
+            <div class="dash-welcome">Admin Panel</div>
+            <div class="dash-subtext">Manage users, posts and reports</div>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value"><%= users.length %></div>
+                <div class="stat-label">Total Users</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-value"><%= posts.length %></div>
+                <div class="stat-label">Total Posts</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-value"><%= reports.length %></div>
+                <div class="stat-label">Total Reports</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-value">
+                    <%= users.filter(u => u.status === 'active').length %>
+                </div>
+                <div class="stat-label">Active Users</div>
+            </div>
+        </div>
+
+        <!-- USERS -->
+        <div class="dash-card" id="users">
+            <div class="card-title">👥 All Users</div>
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <% users.forEach(user => { %>
+                    <tr>
+                        <td>#<%= user.userID %></td>
+                        <td class="bold"><%= user.name %></td>
+                        <td><%= user.email %></td>
+                        <td><%= user.user_type %></td>
+                        <td><%= user.status %></td>
+                    </tr>
+                <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <br>
+        <!-- POSTS -->
+        <div class="dash-card" id="posts">
+            <div class="card-title">📝 All Posts</div>
+
+            <% posts.forEach(post => { %>
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="post-avatar">
+                            <%= post.name.charAt(0).toUpperCase() %>
+                        </div>
+                        <div>
+                            <div class="post-author"><%= post.name %></div>
+                            <div class="post-time"><%= new Date(post.time).toLocaleString() %></div>
+                        </div>
+                    </div>
+
+                    <div class="post-content"><%= post.content %></div>
+                </div>
+            <% }) %>
+        </div>
+        <br>
+        <!-- 🚨 REPORTS -->
+        <!-- 🚨 REPORTS -->
+<div class="dash-card" id="reports">
+    <div class="card-title">🚨 Reports (<%= reports.length %>)</div>
+
+    <% if (reports.length === 0) { %>
+        <div class="empty-state">No reports</div>
+    <% } else { %>
+
+    <table class="admin-table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Reported User</th>
+            <th>Reason</th>
+            <th>Date</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <% reports.forEach(r => { %>
+        <tr>
+            <td>#<%= r.reportID %></td>
+            <td><%= r.reportedName %></td>
+            <td><%= r.reason %></td>
+            <td><%= new Date(r.created_at).toLocaleString() %></td>
+
+            <td style="display:flex; gap:8px;">
+
+                <form action="/admin/report/accept" method="POST">
+                    <input type="hidden" name="reportID" value="<%= r.reportID %>">
+                    <input type="hidden" name="postID" value="<%= r.postID %>">
+                    <button class="btn-accent">Accept</button>
+                </form>
+
+                <form action="/admin/report/decline" method="POST">
+                    <input type="hidden" name="reportID" value="<%= r.reportID %>">
+                    <button class="btn-like">Decline</button>
+                </form>
+
+            </td>
+        </tr>
+        <% }) %>
+        </tbody>
+    </table>
+
+    <% } %>
+</div>
+<br>
+<h3>Pending Trainer Applications</h3>
+<div class="request-list">
+    <% parsedRequests.forEach(req => { %>
+        <div class="request-item" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            
+            <span><%= req.name %> is requesting Trainer status.</span>
+
+            <div style="display:flex; gap:8px;">
+
+                <!-- APPROVE -->
+                <form action="/admin/trainer/approve" method="POST">
+                    <input type="hidden" name="userID" value="<%= req.userID %>">
+                    <input type="hidden" name="notificationID" value="<%= req.notificationID %>">
+                    <button type="submit" class="btn-accent">Approve</button>
+                </form>
+
+                <!-- ❌ DECLINE -->
+                <form action="/admin/trainer/decline" method="POST">
+                    <input type="hidden" name="userID" value="<%= req.userID %>">
+                    <input type="hidden" name="notificationID" value="<%= req.notificationID %>">
+                    <button type="submit" class="btn-like">Decline</button>
+                </form>
+
+            </div>
+
+        </div>
+    <% }) %>
+</div>
+    </main>
+</div>
+<!-- Inside admin.ejs -->
+
+</body>
+</html>
+</html>

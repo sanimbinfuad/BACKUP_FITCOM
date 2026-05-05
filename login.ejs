@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <title>Login — FitCom</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="auth-body">
+
+<div class="auth-container">
+
+    <div class="auth-logo">
+        <span>⚡</span>
+        <span class="logo-text">FITCOM</span>
+    </div>
+
+    <h2 class="auth-title">Welcome Back</h2>
+    <p class="auth-sub">Log in to your account</p>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="error-box"><%= error %></div>
+    <% } %>
+
+    <form action="/login" method="POST" class="auth-form">
+        <div class="field-group">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="you@email.com" required>
+        </div>
+        <div class="field-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-main">Login</button>
+    </form>
+
+    <p class="auth-footer">No account? <a href="/register">Sign up</a></p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<html>
+<head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitCom</title>
+
+    <link rel="stylesheet" href="/style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dash-body">
+
+<div class="dash-wrapper">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            ⚡ <span class="logo-text">FITCOM</span>
+        </div>
+        <nav class="sidebar-nav">
+
+            <a href="/dashboard" class="nav-item <%= active === 'dashboard' ? 'active' : '' %>">
+                🏠 Home
+            </a>
+
+            <a href="/friends" class="nav-item <%= active === 'friends' ? 'active' : '' %>">
+                👥 Friends
+            </a>
+
+            <a href="/activity_log" class="nav-item <%= active === 'activity' ? 'active' : '' %>">
+                📋 Activity Log
+            </a>
+
+            <a href="/goals" class="nav-item <%= active === 'goals' ? 'active' : '' %>">
+                🎯 Goals
+            </a>
+
+            <a href="/challenge" class="nav-item <%= active === 'challenge' ? 'active' : '' %>">
+                ⚡ Daily Challenge
+            </a>
+
+            <a href="/search" class="nav-item <%= active === 'search' ? 'active' : '' %>">
+                🔍 Search
+            </a>
+
+        </nav>
+
+        <a href="/logout" class="sidebar-logout">🚪 Logout</a>
+    </aside>
+
+
+    <main class="dash-main">
+
+        <h2 class="dash-welcome">Activity Log</h2>
+
+        <div class="dash-card">
+            <div class="card-title">➕ Log Workout</div>
+
+            <form action="/activity_log" method="POST" class="post-form">
+
+                <div style="margin-bottom:12px;">
+                    <div style="font-size:0.75rem; color:#5a5f75; margin-bottom:6px;">Select Activity</div>
+
+                    <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                        <% workouts.forEach(w => { %>
+                            <button type="button" 
+                                class="workout-btn" 
+                                data-id="<%= w.w_id %>">
+                                <%= w.type %>
+                            </button>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <input type="hidden" name="w_id" id="selectedWorkout" required>
+
+                <input type="number" name="duration" placeholder="Duration (minutes)" required
+                    style="margin-bottom:10px; padding:10px; width:100%;">
+
+                <button class="btn-accent">Save</button>
+            </form>
+        </div>
+
+        <div class="card-title" style="margin-top:20px;">📅 Your Activities</div>
+
+        <% if (logs.length === 0) { %>
+            <div class="empty-state">No activity yet.</div>
+        <% } %>
+
+        <% logs.forEach(log => { %>
+            <div class="post-card">
+                <div class="post-header">
+                    <div class="post-avatar">🏋️</div>
+                    <div>
+                        <div class="post-author"><%= log.type %></div>
+                        <div class="post-time"><%= log.date %></div>
+                    </div>
+                </div>
+                <p class="post-content">
+                    ⏱ <%= log.duration %> minutes <br>
+                    🔥 <%= Math.round((log.duration / 60) * log.cal_burned_per_hour) %> kcal
+                </p>
+            </div>
+        <% }) %>
+
+    </main>
+</div>
+    <script>
+        const buttons = document.querySelectorAll(".workout-btn");
+        const hiddenInput = document.getElementById("selectedWorkout");
+
+        buttons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                // set value
+                hiddenInput.value = btn.getAttribute("data-id");
+
+                // remove active class
+                buttons.forEach(b => b.classList.remove("active-workout"));
+
+                // highlight selected
+                btn.classList.add("active-workout");
+            });
+       });
+    </script>
+</body>
+</html>

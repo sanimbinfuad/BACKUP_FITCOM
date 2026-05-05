@@ -1,0 +1,296 @@
+<html>
+<head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitCom</title>
+
+    <link rel="stylesheet" href="/style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="dash-body">
+
+<div class="dash-wrapper">
+
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            ⚡ <span class="logo-text">FITCOM</span>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="/dashboard" class="nav-item <%= active === 'dashboard' ? 'active' : '' %>">
+                🏠 Home
+            </a>
+
+            <a href="/friends" class="nav-item <%= active === 'friends' ? 'active' : '' %>">
+                👥 Friends
+            </a>
+
+            <a href="/activity_log" class="nav-item <%= active === 'activity' ? 'active' : '' %>">
+                📋 Activity Log
+            </a>
+
+            <a href="/goals" class="nav-item <%= active === 'goals' ? 'active' : '' %>">
+                🎯 Goals
+            </a>
+
+            <a href="/challenge" class="nav-item <%= active === 'challenge' ? 'active' : '' %>">
+                ⚡ Daily Challenge
+            </a>
+
+            <a href="/search" class="nav-item <%= active === 'search' ? 'active' : '' %>">
+                🔍 Search
+            </a>
+
+
+<div style="padding: 16px 20px; border-top: 1px solid #2a2d3a; margin-top: auto;">
+
+    <% if (user.userType === 'trainer') { %>
+
+        <div style="text-align: center;">
+
+            <div style="font-weight: 600; font-size: 0.85rem; color: #c8f135; margin-bottom: 6px;">
+                ⭐ Certified Trainer
+            </div>
+
+            <div style="font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: #f0f2f8;">
+                <%= rating ? rating : "0.0" %>
+            </div>
+
+            <div style="font-size: 0.7rem; color: #5a5f75;">
+                <%= ratingCount %> reviews
+            </div>
+
+        </div>
+
+    <% } else if (hasRequestedTrainer) { %>
+
+        <div style="text-align:center; font-size:0.8rem; color:#5a5f75;">
+            ⏳ Request Pending
+        </div>
+
+    <% } else { %>
+
+        <div style="font-size: 0.75rem; color: #5a5f75; margin-bottom: 10px;">
+            Want to help others?
+        </div>
+
+        <form action="/apply-trainer" method="POST">
+            <button type="submit" class="btn-accent" style="width: 100%; font-size: 0.8rem;">
+                ⭐ Become Trainer
+            </button>
+        </form>
+
+    <% } %>
+
+</div>
+
+        <a href="/logout" class="sidebar-logout">🚪 Logout</a>
+    </aside>
+
+    <main class="dash-main">
+        <div class="dash-header">
+            <div>
+                <h2 class="dash-welcome">Hey, <%= user.name %> 👋</h2>
+                <p class="dash-subtext">Keep pushing. Every rep counts.</p>
+            </div>
+        </div>
+
+
+        <% if (goals && goals.length > 0) { %>
+        <div class="dash-card" style="border-left: 3px solid #c8f135; margin-bottom:20px;">
+            <div class="card-title">🎯 Goal Reminders</div>
+
+            <% goals.forEach(g => { %>
+                <div class="goal-item" style="padding:12px 0; border-bottom:1px solid #2a2d3a;">
+
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <div style="font-weight:600; color:#f0f2f8; font-size:0.9rem;">
+                                <%= g.title %>
+                            </div>
+
+                            <% if (g.description) { %>
+                                <div style="font-size:0.8rem; margin-top:3px;">
+                                    <%= g.description %>
+                                </div>
+                            <% } %>
+
+                            <% if (g.target_date) { %>
+                                <%
+                                    const diff = new Date(g.target_date) - new Date();
+                                    const threeDays = 3 * 24 * 60 * 60 * 1000;
+                                    const isOverdue = diff < 0;
+                                    const isDueSoon = diff >= 0 && diff < threeDays;
+                                %>
+                                <div style="font-size:0.78rem; margin-top:4px;">
+                                    📅 Due: <%= new Date(g.target_date).toLocaleDateString() %>
+                                    <% if (isOverdue) { %>
+                                        <span style="color:#ff6b6b; font-weight:600;">⚠ Overdue</span>
+                                    <% } else if (isDueSoon) { %>
+                                        <span style="color:#f59e0b; font-weight:600;">⚠ Due Soon</span>
+                                    <% } %>
+                                </div>
+                            <% } else { %>
+                                <div style="font-size:0.78rem; margin-top:4px;">
+                                    📅 No target date set
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <!-- MARK COMPLETE BUTTON -->
+                        <form action="/goals/complete" method="POST" style="margin:0; flex-shrink:0;">
+                            <input type="hidden" name="goal_id" value="<%= g.goal_id %>" />
+                            <button type="submit" class="btn-accent" style="font-size:0.75rem; padding:6px 12px;">
+                                ✅ Done
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            <% }) %>
+
+            <div style="margin-top:12px;">
+                <a href="/goals" style="color:#c8f135; font-size:0.8rem; text-decoration:none; font-weight:600;">
+                    View all goals →
+                </a>
+            </div>
+        </div>
+        <% } %>
+        <br>
+
+
+        <% if (notifications && notifications.length > 0) { %>
+        <div class="dash-card">
+            <div class="card-title">🔔 Notifications</div>
+
+            <% notifications.forEach(n => { %>
+                <div class="notif-item">
+
+                    <span class="notif-text"><%= n.message %></span>
+
+                    <form action="/notification/delete" method="POST" class="notif-close-form">
+                        <input type="hidden" name="id" value="<%= n.notificationID %>">
+                        <button type="submit" class="notif-close">×</button>
+                    </form>
+
+                </div>
+            <% }) %>
+
+        </div>
+        <% } %>
+        <br>
+        <div class="stats-row">
+            <div class="stat-card">
+                🔥 <%= streak %><br>
+                <span>Day Streak</span>
+            </div>
+
+            <div class="stat-card">
+                🏅 <%= badgeCount %><br>
+                <span>Badges</span>
+            </div>
+
+            <div class="stat-card">
+                💪 <%= workoutCount %><br>
+                <span>Workouts</span>
+            </div>
+
+            <div class="stat-card">
+                👥 <%= friendCount %><br>
+                <span>Friends</span>
+            </div>
+        </div>
+
+        <div class="dash-grid">
+
+            <div class="dash-col">
+
+                <div class="dash-card">
+                    <div class="card-title">🏆 Daily Challenge</div>
+                    <p>Earn Your Badge</p>
+                    <br>
+                    <a href="/challenge" class="btn-accent">+ Challenges</a>
+                </div>
+
+                <div class="dash-card">
+                    <div class="card-title">💡 Tip</div>
+                    <p>Consistency beats perfection.</p>
+                </div>
+
+            </div>
+            <div class="dash-col">
+
+                <div class="dash-card">
+                    <div class="card-title">📝 Share</div>
+                    <form action="/post" method="POST" class="post-form">
+                        <textarea name="content" placeholder="Share something..." required></textarea>
+                        <button type="submit" class="btn-accent">Post</button>
+                    </form>
+                </div>
+
+                <div class="card-title">🌍 Feed</div>
+
+                <% if (posts.length === 0) { %>
+                    <div class="empty-state">No posts yet</div>
+                <% } %>
+
+                <% posts.forEach(p => { %>
+                    <div class="post-card">
+
+                        <div class="post-header">
+                            <div class="post-avatar"><%= p.name[0].toUpperCase() %></div>
+                            <div>
+                                <div class="post-author"><%= p.name %></div>
+                                <div class="post-time"><%= new Date(p.time).toLocaleString() %></div>
+                            </div>
+                        </div>
+
+                        <p class="post-content"><%= p.content %></p>
+
+                        <div class="post-actions">
+
+                            <form action="/like/<%= p.p_id %>" method="POST">
+                                <button class="btn-like <%= likedPosts.includes(p.p_id) ? 'liked' : '' %>">
+                                    <%= likedPosts.includes(p.p_id) ? '💔 Unlike' : '👍 Like' %>
+                                </button>
+                            </form>
+
+                            <span class="like-count">❤️ <%= p.like_count %></span>
+
+                            <button class="report-toggle" data-id="<%= p.p_id %>">
+                                🚩 Report
+                            </button>
+
+                        </div>
+
+                        <form action="/report-post" method="POST" class="report-form" id="report-<%= p.p_id %>">
+                            <input type="hidden" name="postID" value="<%= p.p_id %>">
+                            <input type="text" name="reason" placeholder="Why are you reporting this?" required>
+                            <button type="submit">Submit</button>
+                        </form>
+
+                    </div>
+                <% }) %>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+document.querySelectorAll(".report-toggle").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        document.getElementById("report-" + id).classList.toggle("active");
+    });
+});
+</script>
+
+</body>
+</html>

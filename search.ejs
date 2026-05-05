@@ -1,0 +1,169 @@
+<html>
+<head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitCom</title>
+
+    <link rel="stylesheet" href="/style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="dash-body">
+
+<div class="dash-wrapper">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            ⚡ <span class="logo-text">FITCOM</span>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="/dashboard" class="nav-item <%= active === 'dashboard' ? 'active' : '' %>">
+                🏠 Home
+            </a>
+
+            <a href="/friends" class="nav-item <%= active === 'friends' ? 'active' : '' %>">
+                👥 Friends
+            </a>
+
+            <a href="/activity_log" class="nav-item <%= active === 'activity' ? 'active' : '' %>">
+                📋 Activity Log
+            </a>
+
+            <a href="/goals" class="nav-item <%= active === 'goals' ? 'active' : '' %>">
+                🎯 Goals
+            </a>
+
+            <a href="/challenge" class="nav-item <%= active === 'challenge' ? 'active' : '' %>">
+                ⚡ Daily Challenge
+            </a>
+
+            <a href="/search" class="nav-item <%= active === 'search' ? 'active' : '' %>">
+                🔍 Search
+            </a>
+
+        </nav>
+
+        <a href="/logout" class="sidebar-logout">🚪 Logout</a>
+    </aside>
+
+
+    <main class="dash-main">
+
+        <div class="dash-header">
+            <h2 class="dash-welcome">Search 🔍</h2>
+            <p class="dash-subtext">Find users and posts in the community</p>
+        </div>
+
+        <div class="dash-card">
+            <form action="/search" method="GET" class="post-form">
+
+                <input 
+                    type="text" 
+                    name="q" 
+                    placeholder="Search users or posts..." 
+                    value="<%= query %>"
+                    required
+                    style="width:100%; padding:10px; margin-bottom:10px;"
+                >
+
+                <button class="btn-accent">Search</button>
+            </form>
+        </div>
+
+        <% if (query) { %>
+
+        <div class="card-title" style="margin-top:20px;">
+            👥 Users matching "<%= query %>"
+        </div>
+
+        <% if (users.length === 0) { %>
+            <div class="empty-state">No users found.</div>
+        <% } %>
+
+        <% users.forEach(u => { %>
+            <div class="post-card">
+                <div class="post-header">
+                    <div class="post-avatar"><%= u.name[0].toUpperCase() %></div>
+                    <div>
+                        <div class="post-author">
+                            <%= u.name %>
+                            <% if (u.user_type === 'trainer') { %>
+                                <span style="background:rgba(200,241,53,0.1); color:#c8f135; border:1px solid rgba(200,241,53,0.3); border-radius:20px; font-size:0.7rem; padding:2px 8px; margin-left:6px;">🏋️ Trainer</span>
+                            <% } %>
+                        </div>
+                        <div class="post-time">
+                            <%= u.user_type %>
+                            <% if (u.user_type === 'trainer') { %>
+                                &nbsp;|&nbsp; ⭐ <%= u.rating || 0 %> / 5 (<%= u.rating_count || 0 %> ratings)
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="post-actions">
+                    <% if (friendIDs.includes(u.userID)) { %>
+                       <form action="/remove-friend" method="POST" style="display:inline">
+                            <input type="hidden" name="friendID" value="<%= u.userID %>">
+                            <input type="hidden" name="redirectTo" value="/search?q=<%= query %>">
+                           <button class="btn-like" style="border-color:#c8f135; color:#c8f135;">✅ Friends</button>
+                       </form>
+                    <% } else { %>
+                       <form action="/add-friend" method="POST" style="display:inline">
+                         <input type="hidden" name="friendID" value="<%= u.userID %>">
+                         <input type="hidden" name="redirectTo" value="/search?q=<%= query %>">
+                         <button class="btn-like">➕ Add Friend</button>
+                       </form>
+                    <% } %>
+
+                    
+                </div>
+            </div>
+        <% }) %>
+
+        <hr style="border:1px solid #2a2d3a; margin:25px 0;">
+
+        <!-- POSTS -->
+        <div class="card-title">📝 Posts matching "<%= query %>"</div>
+
+        <% if (posts.length === 0) { %>
+            <div class="empty-state">No posts found.</div>
+        <% } %>
+
+        <% posts.forEach(p => { %>
+            <div class="post-card">
+
+                <div class="post-header">
+                    <div class="post-avatar"><%= p.name[0].toUpperCase() %></div>
+                    <div>
+                        <div class="post-author"><%= p.name %></div>
+                        <div class="post-time">
+                            <%= new Date(p.time).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric"
+                            }) %>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="post-content"><%= p.content %></p>
+
+                <div class="post-actions">
+                    <form action="/like/<%= p.p_id %>" method="POST">
+                        <button class="btn-like">❤️ <%= p.like_count %> Like</button>
+                    </form>
+                </div>
+
+            </div>
+        <% }) %>
+
+        <% } %>
+
+    </main>
+</div>
+
+</body>
+</html>

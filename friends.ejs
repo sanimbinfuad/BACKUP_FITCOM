@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitCom</title>
+
+    <link rel="stylesheet" href="/style.css">
+
+    <!-- SAME FONT EVERYWHERE -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="dash-body">
+<div class="dash-wrapper">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            ⚡ <span class="logo-text">FITCOM</span>
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="/dashboard" class="nav-item <%= active === 'dashboard' ? 'active' : '' %>">
+                🏠 Home
+            </a>
+
+            <a href="/friends" class="nav-item <%= active === 'friends' ? 'active' : '' %>">
+                👥 Friends
+            </a>
+
+            <a href="/activity_log" class="nav-item <%= active === 'activity' ? 'active' : '' %>">
+                📋 Activity Log
+            </a>
+
+            <a href="/goals" class="nav-item <%= active === 'goals' ? 'active' : '' %>">
+                🎯 Goals
+            </a>
+
+            <a href="/challenge" class="nav-item <%= active === 'challenge' ? 'active' : '' %>">
+                ⚡ Daily Challenge
+            </a>
+
+            <a href="/search" class="nav-item <%= active === 'search' ? 'active' : '' %>">
+                🔍 Search
+            </a>
+
+        </nav>
+
+        <a href="/logout" class="sidebar-logout">🚪 Logout</a>
+    </aside>
+
+    <main class="dash-main">
+        <div class="dash-header">
+            <h2 class="dash-welcome">Friends 👥</h2>
+            <p class="dash-subtext">Your fitness crew</p>
+        </div>
+
+        <% if (friends.length === 0) { %>
+            <div class="empty-state">
+                No friends yet. <a href="/search" style="color:#c8f135;">Search for people</a> to add!
+            </div>
+        <% } else { %>
+            <% friends.forEach(f => { %>
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="post-avatar"><%= f.name[0].toUpperCase() %></div>
+                        <div style="flex:1">
+                            <div class="post-author">
+                            <%= f.name %>
+                            <% if (f.user_type === 'trainer') { %>
+                                <span style="background:rgba(200,241,53,0.1); color:#c8f135; border:1px solid rgba(200,241,53,0.3); border-radius:20px; font-size:0.7rem; padding:2px 8px; margin-left:6px;">🏋️ Trainer</span>
+                            <% } %>
+                        </div>
+                        <div class="post-time">
+                            🔥 Streak: <%= f.streak || 0 %> days
+                            <% if (f.user_type === 'trainer') { %>
+                                &nbsp;|&nbsp; ⭐ <%= f.rating || 0 %> / 5 (<%= f.rating_count || 0 %> ratings)
+                            <% } %>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <form action="/remove-friend" method="POST" style="display:inline">
+                            <input type="hidden" name="friendID" value="<%= f.userID %>">
+                            <input type="hidden" name="redirectTo" value="/friends">
+                            <button class="btn-like" style="border-color:#ff6b6b; color:#ff6b6b;">❌ Unfriend</button>
+                        </form>
+                        <a href="/chat/<%= f.userID %>">
+                            <button class="btn-like">💬 Message</button>
+                        </a>
+                        <% if (f.user_type === 'trainer') { %>
+                            <form action="/rate-trainer" method="POST"
+                                style="display:inline;display:flex;align-items:center;gap:6px;">
+                                <input type="hidden" name="trainerID" value="<%= f.userID %>">
+                                <select name="score" class="btn-like" style="padding:5px 8px;">
+                                    <option value="1">1 / 5</option>
+                                    <option value="2">2 / 5</option>
+                                    <option value="3" selected>3 / 5</option>
+                                    <option value="4">4 / 5</option>
+                                    <option value="5">5 / 5</option>
+                                </select>
+                                <button class="btn-like">Rate</button>
+                            </form>
+                        <% } %>
+                    </div>
+                </div>
+            <% }) %>
+        <% } %>
+    </main>
+</div>
+</body>
+</html>
